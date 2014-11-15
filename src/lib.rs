@@ -68,11 +68,11 @@ fn get_fmt_meth(cx: &mut ExtCtxt, expr: P<ast::Expr>) -> P<ast::Expr> {
                         let chk = $chk_fun;
                         if !chk(given_val, expected_val) {
                             panic!("assertion failed: {}:\n\
-                                    left:  `{}`\n\
-                                    right: `{}`{}",
+                                    left:  `{}` = `{}`\n\
+                                    right: `{}` = `{}`{}",
                                 stringify!($expr),
-                                *given_val,
-                                *expected_val, rest);
+                                stringify!($given), *given_val,
+                                stringify!($expected), *expected_val, rest);
                         }
                     }
                 }
