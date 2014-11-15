@@ -1,0 +1,9 @@
+[package]
+
+name = "bassert"
+version = "0.0.1"
+authors = ["scialex"]
+
+[lib]
+name = "bassert"
+crate-type = ["dylib"]
