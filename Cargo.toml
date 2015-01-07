@@ -17,3 +17,4 @@ values of function arguments.
 [lib]
 name = "bassert"
 crate-type = ["dylib"]
+plugin = true

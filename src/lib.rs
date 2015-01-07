@@ -1,43 +1,46 @@
 #![crate_type="dylib"]
 #![crate_name="bassert"]
-#![feature(plugin_registrar, quote, macro_rules)]
+#![feature(plugin_registrar, quote)]
+#![doc(html_logo_url = "https://avatars.io/gravatar/d0ad9c6f37bb5aceac2d7ac95ba82607?size=large",
+       html_favicon_url="https://avatars.io/gravatar/d0ad9c6f37bb5aceac2d7ac95ba82607?size=small")]
+
 
 extern crate syntax;
 extern crate rustc;
 
 use syntax::codemap::Span;
 use syntax::parse::token;
-use syntax::ast::{mod, TokenTree};
+use syntax::ast::{self, TokenTree};
 use syntax::ptr::P;
 use syntax::ext::base::{DummyResult, ExtCtxt, MacResult, MacExpr};
 use rustc::plugin::Registry;
 
 #[macro_export]
-macro_rules! bassert(
+macro_rules! bassert{
     ($e:expr) => ({
-        format_args!(internal_bassert!($e),"");
+        bassert!($e,"");
     });
 
     ($e:expr, $fmt:expr) => ({
-        format_args!(internal_bassert!($e), concat!("\n",$fmt));
+        bassert!($e,"{}",$e);
     });
     ($e:expr, $fmt:expr, $($args:tt)*) => ({
-        format_args!(internal_bassert!($e), concat!("\n",$fmt), $($args)*);
+        let f = internal_bassert!($e); f(&format_args!(concat!("\n",$fmt), $($args)*));
     });
-)
+}
 
 #[macro_export]
-macro_rules! debug_bassert(
+macro_rules! debug_bassert{
     ($e:expr) => ({
-        if cfg!(not(ndebug)) { format_args!(internal_bassert!($e),""); }
+        if cfg!(not(ndebug)) { bassert!($e) }
     });
     ($e:expr, $fmt:expr) => ({
-        if cfg!(not(ndebug)) { format_args!(internal_bassert!($e), concat!("\n",$fmt)); }
+        if cfg!(not(ndebug)) { bassert!($e, $fmt) }
     });
     ($e:expr, $fmt:expr, $($args:tt)*) => ({
-        if cfg!(not(ndebug)) { format_args!(internal_bassert!($e), concat!("\n",$fmt), $($args)*); }
+        if cfg!(not(ndebug)) { bassert!($e, $fmt, $($args)*) }
     });
-)
+}
 
 fn expand_bassert(cx: &mut ExtCtxt, sp: Span, args: &[TokenTree])
         -> Box<MacResult + 'static> {
@@ -70,8 +73,7 @@ fn get_fmt_meth(cx: &mut ExtCtxt, expr: P<ast::Expr>) -> P<ast::Expr> {
                             panic!("assertion failed: {}:\n\
                                     left:  `{}` = `{}`\n\
                                     right: `{}` = `{}`{}",
-                                stringify!($expr),
-                                stringify!($given), *given_val,
+                                stringify!($expr), stringify!($given), *given_val,
                                 stringify!($expected), *expected_val, rest);
                         }
                     }
@@ -89,9 +91,8 @@ fn get_fmt_meth(cx: &mut ExtCtxt, expr: P<ast::Expr>) -> P<ast::Expr> {
                             (a,) => {
                                 if !($fun(*a)) {
                                     panic!("assertion failed: {}:\n\
-                                            argument {}: {}{}",
-                                            stringify!($expr),
-                                            0u32, *a, rest);
+                                            {} = {}{}",
+                                            stringify!($expr), stringify!($a), *a, rest);
                                 };
                             }
                         };
@@ -104,10 +105,10 @@ fn get_fmt_meth(cx: &mut ExtCtxt, expr: P<ast::Expr>) -> P<ast::Expr> {
                             (a, b) => {
                                 if !($fun(*a, *b)) {
                                     panic!("assertion failed: {}:\n\
-                                            argument {}: {}\n\
-                                            argument {}: {}{}",
-                                            stringify!($expr),
-                                            0u32, *a, 1u32, *b, rest);
+                                            {} = {}\n\
+                                            {} = {}{}",
+                                            stringify!($expr), stringify!($a), *a, stringify!($b),
+                                            *b, rest);
                                 };
                             }
                         };
@@ -120,11 +121,11 @@ fn get_fmt_meth(cx: &mut ExtCtxt, expr: P<ast::Expr>) -> P<ast::Expr> {
                             (a, b, c) => {
                                 if !($fun(*a, *b, *c)) {
                                     panic!("assertion failed: {}:\n\
-                                            argument {}: {}\n\
-                                            argument {}: {}\n\
-                                            argument {}: {}{}",
-                                            stringify!($expr),
-                                            0u32, *a, 1u32, *b, 2u32, *c, rest);
+                                            {} = {}\n\
+                                            {} = {}\n\
+                                            {} = {}{}",
+                                            stringify!($expr), stringify!($a), *a, stringify!($b),
+                                            *b, stringify!($c), *c, rest);
                                 };
                             }
                         };
@@ -137,12 +138,12 @@ fn get_fmt_meth(cx: &mut ExtCtxt, expr: P<ast::Expr>) -> P<ast::Expr> {
                             (a, b, c, d) => {
                                 if !($fun(*a, *b, *c, *d)) {
                                     panic!("assertion failed: {}:\n\
-                                            argument {}: {}\n\
-                                            argument {}: {}\n\
-                                            argument {}: {}\n\
-                                            argument {}: {}{}",
-                                            stringify!($expr),
-                                            0u32, *a, 1u32, *b, 2u32, *c, 3u32, *d, rest);
+                                            {} = {}\n\
+                                            {} = {}\n\
+                                            {} = {}\n\
+                                            {} = {}{}",
+                                            stringify!($expr), stringify!($a), *a, stringify!($b),
+                                            *b, stringify!($c), *c, stringify!($d), *d, rest);
                                 };
                             }
                         };
@@ -155,13 +156,14 @@ fn get_fmt_meth(cx: &mut ExtCtxt, expr: P<ast::Expr>) -> P<ast::Expr> {
                             (a, b, c, d, e) => {
                                 if !($fun(*a, *b, *c, *d, *e)) {
                                     panic!("assertion failed: {}:\n\
-                                            argument {}: {}\n\
-                                            argument {}: {}\n\
-                                            argument {}: {}\n\
-                                            argument {}: {}\n\
-                                            argument {}: {}{}",
-                                            stringify!($expr),
-                                            0u32, *a, 1u32, *b, 2u32, *c, 3u32, *d, 4u32, *e, rest);
+                                            {} = {}\n\
+                                            {} = {}\n\
+                                            {} = {}\n\
+                                            {} = {}\n\
+                                            {} = {}{}",
+                                            stringify!($expr), stringify!($a), *a, stringify!($b),
+                                            *b, stringify!($c), *c, stringify!($d), *d,
+                                            stringify!($e), *e, rest);
                                 };
                             }
                         };
@@ -174,14 +176,16 @@ fn get_fmt_meth(cx: &mut ExtCtxt, expr: P<ast::Expr>) -> P<ast::Expr> {
                             (a, b, c, d, e, f) => {
                                 if !($fun(*a, *b, *c, *d, *e, *f)) {
                                     panic!("assertion failed: {}:\n\
-                                            argument {}: {}\n\
-                                            argument {}: {}\n\
-                                            argument {}: {}\n\
-                                            argument {}: {}\n\
-                                            argument {}: {}\n\
-                                            argument {}: {}{}",
+                                            {} = {}\n\
+                                            {} = {}\n\
+                                            {} = {}\n\
+                                            {} = {}\n\
+                                            {} = {}\n\
+                                            {} = {}{}",
                                             stringify!($expr),
-                                            0u32, *a, 1u32, *b, 2u32, *c, 3u32, *d, 4u32, *e, 5u32, *f, rest);
+                                            stringify!($a), *a, stringify!($b), *b, stringify!($c),
+                                            *c, stringify!($d), *d, stringify!($e), *e,
+                                            stringify!($f), *f, rest);
                                 };
                             }
                         };
@@ -200,7 +204,7 @@ fn get_fmt_meth(cx: &mut ExtCtxt, expr: P<ast::Expr>) -> P<ast::Expr> {
     };
     // Wrap the actual check into a function capable of being passed to `format_args!` and make
     // sure that the variable `rest` is bound.
-    quote_expr!(cx, |rest: &::std::fmt::Arguments| { $inner_check } )
+    quote_expr!(cx, |: rest: &::std::fmt::Arguments| { $inner_check } )
 }
 
 /// Defines all the binary operations we might do, so we can handle them all.

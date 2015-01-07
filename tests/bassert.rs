@@ -1,7 +1,5 @@
-#![feature(phase)]
-
-#[phase(plugin)]
-extern crate bassert;
+#![feature(plugin)]
+#[macro_use] #[no_link] #[plugin] extern crate bassert;
 
 #[test]
 fn assert_with_message() {
@@ -41,7 +39,7 @@ fn test_methods() {
     bassert!(six_args(y, x, 9, 32, 44, 12), "WHY => {}", y);
     bassert!(!six_args(3 + y, x, 9, 32, 44, 12), "{} {}", "hello", "world");
     if cfg!(fail) {
-        let double = |x:i32| -> i32 {x * 2};
+        let double = |&: x:i32| -> i32 {x * 2};
         bassert!(six_args(y + 4, x, 3+2 * 2, 9|12, double(4), 12), "WHY => {}", y);
     }
 }
