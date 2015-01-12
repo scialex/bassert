@@ -71,8 +71,8 @@ fn get_fmt_meth(cx: &mut ExtCtxt, expr: P<ast::Expr>) -> P<ast::Expr> {
                         let chk = $chk_fun;
                         if !chk(given_val, expected_val) {
                             panic!("assertion failed: {}:\n\
-                                    left:  `{}` = `{}`\n\
-                                    right: `{}` = `{}`{}",
+                                    left:  `{}` = `{:?}`\n\
+                                    right: `{}` = `{:?}`{}",
                                 stringify!($expr), stringify!($given), *given_val,
                                 stringify!($expected), *expected_val, rest);
                         }
@@ -91,7 +91,7 @@ fn get_fmt_meth(cx: &mut ExtCtxt, expr: P<ast::Expr>) -> P<ast::Expr> {
                             (a,) => {
                                 if !($fun(*a)) {
                                     panic!("assertion failed: {}:\n\
-                                            {} = {}{}",
+                                            {} = {:?}{}",
                                             stringify!($expr), stringify!($a), *a, rest);
                                 };
                             }
@@ -105,8 +105,8 @@ fn get_fmt_meth(cx: &mut ExtCtxt, expr: P<ast::Expr>) -> P<ast::Expr> {
                             (a, b) => {
                                 if !($fun(*a, *b)) {
                                     panic!("assertion failed: {}:\n\
-                                            {} = {}\n\
-                                            {} = {}{}",
+                                            {} = {:?}\n\
+                                            {} = {:?}{}",
                                             stringify!($expr), stringify!($a), *a, stringify!($b),
                                             *b, rest);
                                 };
@@ -121,9 +121,9 @@ fn get_fmt_meth(cx: &mut ExtCtxt, expr: P<ast::Expr>) -> P<ast::Expr> {
                             (a, b, c) => {
                                 if !($fun(*a, *b, *c)) {
                                     panic!("assertion failed: {}:\n\
-                                            {} = {}\n\
-                                            {} = {}\n\
-                                            {} = {}{}",
+                                            {} = {:?}\n\
+                                            {} = {:?}\n\
+                                            {} = {:?}{}",
                                             stringify!($expr), stringify!($a), *a, stringify!($b),
                                             *b, stringify!($c), *c, rest);
                                 };
@@ -138,10 +138,10 @@ fn get_fmt_meth(cx: &mut ExtCtxt, expr: P<ast::Expr>) -> P<ast::Expr> {
                             (a, b, c, d) => {
                                 if !($fun(*a, *b, *c, *d)) {
                                     panic!("assertion failed: {}:\n\
-                                            {} = {}\n\
-                                            {} = {}\n\
-                                            {} = {}\n\
-                                            {} = {}{}",
+                                            {} = {:?}\n\
+                                            {} = {:?}\n\
+                                            {} = {:?}\n\
+                                            {} = {:?}{}",
                                             stringify!($expr), stringify!($a), *a, stringify!($b),
                                             *b, stringify!($c), *c, stringify!($d), *d, rest);
                                 };
@@ -156,11 +156,11 @@ fn get_fmt_meth(cx: &mut ExtCtxt, expr: P<ast::Expr>) -> P<ast::Expr> {
                             (a, b, c, d, e) => {
                                 if !($fun(*a, *b, *c, *d, *e)) {
                                     panic!("assertion failed: {}:\n\
-                                            {} = {}\n\
-                                            {} = {}\n\
-                                            {} = {}\n\
-                                            {} = {}\n\
-                                            {} = {}{}",
+                                            {} = {:?}\n\
+                                            {} = {:?}\n\
+                                            {} = {:?}\n\
+                                            {} = {:?}\n\
+                                            {} = {:?}{}",
                                             stringify!($expr), stringify!($a), *a, stringify!($b),
                                             *b, stringify!($c), *c, stringify!($d), *d,
                                             stringify!($e), *e, rest);
@@ -176,12 +176,12 @@ fn get_fmt_meth(cx: &mut ExtCtxt, expr: P<ast::Expr>) -> P<ast::Expr> {
                             (a, b, c, d, e, f) => {
                                 if !($fun(*a, *b, *c, *d, *e, *f)) {
                                     panic!("assertion failed: {}:\n\
-                                            {} = {}\n\
-                                            {} = {}\n\
-                                            {} = {}\n\
-                                            {} = {}\n\
-                                            {} = {}\n\
-                                            {} = {}{}",
+                                            {} = {:?}\n\
+                                            {} = {:?}\n\
+                                            {} = {:?}\n\
+                                            {} = {:?}\n\
+                                            {} = {:?}\n\
+                                            {} = {:?}{}",
                                             stringify!($expr),
                                             stringify!($a), *a, stringify!($b), *b, stringify!($c),
                                             *c, stringify!($d), *d, stringify!($e), *e,
