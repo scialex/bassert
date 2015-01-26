@@ -1,5 +1,6 @@
 #![crate_type="dylib"]
 #![crate_name="bassert"]
+#![allow(unstable)]
 #![feature(plugin_registrar, quote)]
 #![doc(html_logo_url = "https://avatars.io/gravatar/d0ad9c6f37bb5aceac2d7ac95ba82607?size=large",
        html_favicon_url="https://avatars.io/gravatar/d0ad9c6f37bb5aceac2d7ac95ba82607?size=small")]
@@ -209,7 +210,7 @@ fn get_fmt_meth(cx: &mut ExtCtxt, expr: P<ast::Expr>) -> P<ast::Expr> {
 
 /// Defines all the binary operations we might do, so we can handle them all.
 fn get_check_func(cx: &mut ExtCtxt, cmp: ast::BinOp) -> P<ast::Expr> {
-    match cmp {
+    match cmp.node {
         ast::BiEq  => {
             quote_expr!(cx, { fn chk<T: Eq>(x: &T, y: &T) -> bool { *x == *y }; chk })
         },
