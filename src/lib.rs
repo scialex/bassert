@@ -205,7 +205,7 @@ fn get_fmt_meth(cx: &mut ExtCtxt, expr: P<ast::Expr>) -> P<ast::Expr> {
     };
     // Wrap the actual check into a function capable of being passed to `format_args!` and make
     // sure that the variable `rest` is bound.
-    quote_expr!(cx, |: rest: &::std::fmt::Arguments| { $inner_check } )
+    quote_expr!(cx, |rest: &::std::fmt::Arguments| { $inner_check } )
 }
 
 /// Defines all the binary operations we might do, so we can handle them all.
