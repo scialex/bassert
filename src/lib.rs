@@ -13,7 +13,7 @@ use syntax::codemap::Span;
 use syntax::parse::token;
 use syntax::ast::{self, TokenTree};
 use syntax::ptr::P;
-use syntax::ext::base::{DummyResult, ExtCtxt, MacResult, MacExpr};
+use syntax::ext::base::{DummyResult, ExtCtxt, MacResult, MacEager};
 use rustc::plugin::Registry;
 
 #[macro_export]
@@ -55,7 +55,7 @@ fn expand_bassert(cx: &mut ExtCtxt, sp: Span, args: &[TokenTree])
         cx.span_err(sp, "Non terminated internal bassert macro!");
         return DummyResult::any(sp);
     }
-    MacExpr::new(get_fmt_meth(cx, expr))
+    MacEager::expr(get_fmt_meth(cx, expr))
 }
 
 /// Get the P<Expr> that is a callable function that can be passed to format_args! for execution of
